@@ -21,6 +21,12 @@ export default function Sidebar() {
       icon: '📊'
     },
     { 
+      title: 'Data Migration', 
+      href: '/data-migration', 
+      icon: '☁️',
+      badge: 3 // Files ready for migration
+    },
+    { 
       title: 'Customer Intelligence', 
       href: '/customer-intelligence', 
       icon: '🧠',

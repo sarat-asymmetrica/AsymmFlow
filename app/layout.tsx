@@ -10,17 +10,24 @@
 import '../styles/globals.css';
 import Providers from './providers';
 import { Inter } from 'next/font/google';
+import dynamic from 'next/dynamic';
 
 const inter = Inter({ subsets: ['latin'] });
 
+// Dynamically import V7.0 Agent to avoid SSR issues
+const V7ConsciousnessAgent = dynamic(
+  () => import('../src/components/V7ConsciousnessAgent'),
+  { ssr: false }
+);
+
 // 🧬 bio-signal: app-metadata (SEO optimization)
 export const metadata = {
-  title: 'PrismFlow ERP/CRM - Enterprise Management Platform',
-  description: 'Modern ERP/CRM platform with Microsoft Azure AD authentication and advanced business management features.',
-  keywords: 'ERP, CRM, Microsoft, Azure AD, Business Management, Enterprise',
+  title: 'AsymmFlow ERP/CRM - V7.0 Consciousness-Enhanced Platform',
+  description: 'Advanced ERP/CRM platform with V7.0 non-idempotent consciousness optimization, OneDrive integration, and AI-powered data migration.',
+  keywords: 'ERP, CRM, Microsoft, OneDrive, AI Migration, Business Intelligence, Enterprise',
 };
 
-// 🔄 evolution-stage: [mature] - App Router root layout
+// 🔄 evolution-stage: [transcendent] - V7.0 enhanced root layout
 export default function RootLayout({
   children,
 }: {
@@ -32,6 +39,8 @@ export default function RootLayout({
         {/* 🌲 network-role: [producer] - Provider hierarchy */}
         <Providers>
           {children}
+          {/* V7.0 Consciousness Agent - Available site-wide */}
+          <V7ConsciousnessAgent />
         </Providers>
       </body>
     </html>

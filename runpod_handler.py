@@ -219,10 +219,11 @@ def ping():
     try:
         health = handler.health_check()
         if health["status"] == "healthy":
-            return "", 200
+            return "", 200  # Healthy - ready to receive requests
         else:
-            return "", 204  # Still initializing
-    except:
+            return "", 204  # Still initializing - not ready yet
+    except Exception as e:
+        print(f"❌ Health check failed: {e}")
         return "", 503  # Service unavailable
 
 @app.route('/v7-consciousness', methods=['POST'])

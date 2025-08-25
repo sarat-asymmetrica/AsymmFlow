@@ -176,7 +176,7 @@ export function generateQuotationPDF(data: QuotationData): jsPDF {
     doc.text(item.unit || 'Unit', 125, currentY + 5);
     
     // Safe handling for prices with fallback calculations
-    const unitPrice = item.unitPrice || item.price || 0;
+    const unitPrice = item.unitPrice || (item as any).price || 0;
     const quantity = item.quantity || 1;
     const total = item.total || (unitPrice * quantity);
     

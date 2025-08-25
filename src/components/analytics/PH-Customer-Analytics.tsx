@@ -213,7 +213,7 @@ export default function PHCustomerAnalytics({ customers = [], timeframe = '6M' }
 
   // Grade color mapping
   const getGradeColor = (grade: string) => {
-    const colors = {
+    const colors: Record<string, string> = {
       'A': '#28a745', // Green
       'B': '#17a2b8', // Blue  
       'C': '#ffc107', // Yellow

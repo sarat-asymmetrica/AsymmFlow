@@ -381,6 +381,3 @@ class OneDriveService {
 
 // Export singleton instance
 export const oneDriveService = new OneDriveService();
-
-// Export types
-export type { MigrationJob };

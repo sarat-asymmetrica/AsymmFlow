@@ -149,7 +149,7 @@ export default function RFQPage() {
     const companyName = (customer.companyName || customer.name || '').toLowerCase();
     
     // Base values by customer type (Julius-validated business intelligence)
-    const baseValuesByType = {
+    const baseValuesByType: Record<string, number> = {
       'End Customer': 25000,
       'Engineering Company, EPC/Licensor': 75000,
       'System Integrator': 45000,

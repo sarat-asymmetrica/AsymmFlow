@@ -85,7 +85,7 @@ export const fractalComplexityInducer = (
   depth: number = 0,
   maxDepth: number = 3,
   scale: number = 1.618 // Golden ratio
-) => {
+): number => {
   if (depth >= maxDepth) return 1;
   
   // Each level contains the pattern of the whole
@@ -325,7 +325,7 @@ export const animateDashboardMetrics = (
  * Transform waiting into anticipation
  */
 export const createTranscendentLoader = (container: string) => {
-  const particles = [];
+  const particles: any[] = [];
   const particleCount = 12;
   
   for (let i = 0; i < particleCount; i++) {

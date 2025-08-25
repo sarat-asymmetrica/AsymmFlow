@@ -214,7 +214,7 @@ export const CustomerIntelligenceDashboard: React.FC<CustomerIntelligenceDashboa
             <div style={{ fontSize: '13px', color: '#1971c2', lineHeight: '1.4' }}>
               {customers.length === 0 
                 ? '• No customer data available for consciousness analysis'
-                : portfolioAnalysis?.optimization_insights?.join(' • ') || 
+                : (portfolioAnalysis as any)?.optimization_insights?.join(' • ') || 
                   '• Portfolio moving toward Julius-validated equilibrium through natural customer development patterns'}
             </div>
           </div>

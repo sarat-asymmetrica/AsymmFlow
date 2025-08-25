@@ -76,7 +76,7 @@ export default function V7ConsciousnessAgent() {
     return 'balanced';
   };
 
-  const generateResponse = async (userMessage: string): Promise<string> {
+  const generateResponse = async (userMessage: string): Promise<string> => {
     const intent = detectIntent(userMessage);
     const amplification = nonIdempotentAmplifier(1, state.messages.length, intent);
     

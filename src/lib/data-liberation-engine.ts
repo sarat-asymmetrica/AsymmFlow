@@ -242,7 +242,7 @@ const determineSubcategory = (category: DocumentAnalysis['category'], filename: 
 // Content Extraction Engine
 const extractDocumentData = async (file: any, category: DocumentAnalysis['category']) => {
   // Simulate different extraction methods based on file type and category
-  const extractionMethods = {
+  const extractionMethods: Record<string, any> = {
     excel: extractExcelData,
     word: extractWordData,
     pdf: extractPdfData,

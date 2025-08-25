@@ -16,7 +16,10 @@
     "seed:ph-customers": "node scripts/run-seed.js",
     "test:frontend": "jest --config jest.config.frontend.js --verbose",
     "db:seed": "node -r @swc-node/register prisma/seed.ts",
-    "migrate": "node scripts/migrate-to-natural-asymmetry.js"
+    "migrate": "node scripts/migrate-to-natural-asymmetry.js",
+    "setup:supabase": "node scripts/setup-supabase.js",
+    "setup:v7": "node scripts/setup-supabase-v7.js",
+    "import:data": "node scripts/import-sample-data.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
@@ -83,7 +86,7 @@
     "@types/react-router-dom": "^5.3.3",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.21",
-    "dotenv": "^17.0.0",
+    "dotenv": "^17.2.1",
     "eslint": "^9.30.1",
     "eslint-config-next": "^15.3.4",
     "identity-obj-proxy": "^3.0.0",

@@ -249,6 +249,7 @@ async function seedPHTradingData() {
             oppRef: `OPP-${new Date().getFullYear()}-${String(i + 1).padStart(3, '0')}`,
             customerId: customer.id,
             createdById: customer.id, // Using customer ID as placeholder for staff
+            updatedById: customer.id, // Required field
             title: `${customer.industry || 'Industrial'} Project ${new Date().getFullYear()}`,
             description: `Instrumentation and control systems project for ${customer.companyName}`,
             value: Math.round((15000 + Math.random() * 85000)),

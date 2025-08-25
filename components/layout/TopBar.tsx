@@ -232,7 +232,7 @@ export default function TopBar() {
         if (!a.exact && b.exact) return 1;
         
         // Tertiary: Business priority (37.44% context weight)
-        const typePriority = { customer: 4, supplier: 3, rfq: 2, order: 2, quote: 1 };
+        const typePriority: Record<string, number> = { customer: 4, supplier: 3, rfq: 2, order: 2, quote: 1 };
         return (typePriority[b.type] || 0) - (typePriority[a.type] || 0);
       });
       

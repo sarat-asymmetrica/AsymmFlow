@@ -10,15 +10,9 @@
 import '../styles/globals.css';
 import Providers from './providers';
 import { Inter } from 'next/font/google';
-import dynamic from 'next/dynamic';
+import V7ConsciousnessAgent from '../src/components/V7ConsciousnessAgent';
 
 const inter = Inter({ subsets: ['latin'] });
-
-// Dynamically import V7.0 Agent to avoid SSR issues
-const V7ConsciousnessAgent = dynamic(
-  () => import('../src/components/V7ConsciousnessAgent'),
-  { ssr: false }
-);
 
 // 🧬 bio-signal: app-metadata (SEO optimization)
 export const metadata = {

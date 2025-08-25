@@ -1,0 +1,142 @@
+/* Global styles */
+
+/* styles/globals.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, Segoe UI, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+
+
+@layer base {
+  :root {
+    /* PrismFlow Claude UI/UX Kit colors */
+    --background: 210 40% 98%;
+    --foreground: 215 25% 27%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 27%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+    
+    /* Primary Green - #7CB342 */
+    --primary: 95 53% 47%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary Green - #558B2F */
+    --secondary: 95 50% 36%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Neutral Gray - #64748B */
+    --muted: 217 19% 47%;
+    --muted-foreground: 215 16% 70%;
+    
+    /* Accent */
+    --accent: 95 53% 90%;
+    --accent-foreground: 95 53% 47%;
+    
+    /* Destructive - #EF4444 */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Success - #10B981 */
+    --success: 158 64% 40%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Warning - #F59E0B */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    /* Border & Inputs */
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 95 53% 47%;
+    
+    /* Charts */
+    --chart-1: 95 53% 47%;
+    --chart-2: 95 50% 36%;
+    --chart-3: 158 64% 40%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 84% 60%;
+    
+    --radius: 0.5rem;
+  }
+  
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 14%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 14%;
+    --popover-foreground: 210 40% 98%;
+    
+    /* Primary Green in Dark Mode - brighter */
+    --primary: 95 55% 50%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary Green in Dark Mode */
+    --secondary: 95 50% 40%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Neutral Gray - Lighter for dark mode */
+    --muted: 217 19% 50%;
+    --muted-foreground: 215 16% 80%;
+    
+    /* Accent for dark mode */
+    --accent: 95 53% 25%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Destructive in Dark Mode - brighter */
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Success in Dark Mode */
+    --success: 158 64% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Warning in Dark Mode */
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 100%;
+    
+    /* Border & Inputs */
+    --border: 217 19% 30%;
+    --input: 217 19% 30%;
+    --ring: 95 55% 50%;
+    
+    /* Charts - Adjusted for dark mode */
+    --chart-1: 95 55% 50%;
+    --chart-2: 95 50% 40%;
+    --chart-3: 158 64% 45%;
+    --chart-4: 38 92% 55%;
+    --chart-5: 0 84% 65%;
+  }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

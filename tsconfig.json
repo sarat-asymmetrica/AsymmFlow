@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "types": ["jest"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/pages/*": [
+        "./pages/*"
+      ],
+      "@/*": [
+        "./src/*"
+      ],
+      "@prisma/client": [
+        "./src/generated/prisma"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "jest.setup.frontend.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "BACKUP",
+    "BACKUP/**/*",
+    "BACKUP_BEFORE_NATURAL_ASYMMETRY",
+    "LEGACY_ARCHIVE",
+    "LEGACY_ARCHIVE/**/*",
+    "src/components/pdf/QuotationPDF.tsx"
+  ]
+}

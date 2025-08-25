@@ -1,0 +1,450 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums for status fields
+enum OpportunityStatus {
+  OPEN
+  QUALIFIED
+  PROPOSAL_SENT
+  NEGOTIATION
+  WON
+  LOST
+  ON_HOLD
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum OrderStatus {
+  PENDING_CONFIRMATION
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+  OVERDUE
+  FAILED
+}
+
+enum ShipmentStatus {
+  PENDING
+  IN_TRANSIT
+  DELIVERED
+  DELAYED
+  FAILED
+}
+
+enum ProjectStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskStatus {
+  Pending
+  InProgress
+  Completed
+  Canceled
+}
+
+enum Currency {
+  BHD
+  USD
+  EUR
+  GBP
+  AED
+}
+
+enum CommunicationType {
+  EMAIL
+  CALL
+  NOTE
+  MEETING
+}
+
+enum CommunicationDirection {
+  INBOUND
+  OUTBOUND
+  INTERNAL
+}
+
+// Core Models
+model StaffUser {
+  staffId       String    @id @default(uuid()) @db.Uuid
+  name          String
+  email         String    @unique
+  designation   String
+  contactNumber String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations for createdBy/updatedBy
+  createdOpportunities Opportunity[] @relation("CreatedOpportunities")
+  updatedOpportunities Opportunity[] @relation("UpdatedOpportunities")
+  createdQuotations    Quotation[]   @relation("CreatedQuotations")
+  updatedQuotations    Quotation[]   @relation("UpdatedQuotations")
+  createdOrders        Order[]       @relation("CreatedOrders")
+  updatedOrders        Order[]       @relation("UpdatedOrders")
+  createdShipments     Shipment[]    @relation("CreatedShipments")
+  updatedShipments     Shipment[]    @relation("UpdatedShipments")
+  createdPayments      Payment[]     @relation("CreatedPayments")
+  updatedPayments      Payment[]     @relation("UpdatedPayments")
+  approvedQuotations   Quotation[]   @relation("ApprovedQuotations")
+
+  assignedTasks Task[]
+  loggedCommunications Communication[] @relation("LoggedBy")
+
+  // Project relations
+  managedProjects    Project[]     @relation("ManagedProjects")
+  memberOfProjects   Project[]     @relation("ProjectsAsMember")
+
+  @@map("staff_users")
+}
+
+model Task {
+  id             String      @id @default(uuid()) @db.Uuid
+  title          String
+  description    String?
+  status         TaskStatus  @default(Pending)
+  dueDate        DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  assignedUserId String?     @db.Uuid
+  assignedUser   StaffUser?  @relation(fields: [assignedUserId], references: [staffId])
+
+  @@map("tasks")
+}
+
+model Customer {
+  id           String        @id @default(uuid()) @db.Uuid
+  cid          String        @unique // Customer ID
+  customerType String // e.g., "Corporate", "Individual"
+  businessName String
+  salutation   String?
+  firstName    String
+  lastName     String
+  phone        String?
+  email        String?       @unique
+  address      String?
+  currency     Currency      @default(BHD)
+  gstin        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  opportunities  Opportunity[]
+  projects       Project[]
+  communications Communication[]
+
+  @@map("customers")
+}
+
+model Opportunity {
+  id          String            @id @default(uuid()) @db.Uuid
+  oppRef      String            @unique // Opportunity Reference
+  title       String
+  status      OpportunityStatus @default(OPEN)
+  value       Float
+  currency    Currency          @default(BHD)
+  description String?
+
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  customerId  String            @db.Uuid
+  customer    Customer          @relation(fields: [customerId], references: [id])
+
+  createdById String            @db.Uuid
+  updatedById String            @db.Uuid
+  createdBy   StaffUser         @relation("CreatedOpportunities", fields: [createdById], references: [staffId])
+  updatedBy   StaffUser         @relation("UpdatedOpportunities", fields: [updatedById], references: [staffId])
+
+  quotations     Quotation[]
+  orders         Order[]
+  documents      Document[]
+  communications Communication[]
+
+  @@map("opportunities")
+}
+
+model Project {
+  id              String        @id @default(uuid()) @db.Uuid
+  title           String
+  description     String?
+  status          ProjectStatus @default(NOT_STARTED)
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  customerId      String        @db.Uuid
+  customer        Customer      @relation(fields: [customerId], references: [id])
+
+  projectManagerId String?       @db.Uuid
+  projectManager   StaffUser?    @relation("ManagedProjects", fields: [projectManagerId], references: [staffId])
+  teamMembers      StaffUser[]   @relation("ProjectsAsMember")
+
+  // Add other relations as needed, e.g., to Tasks, Documents
+
+  @@map("projects")
+}
+
+model Quotation {
+  id                  String          @id @default(uuid()) @db.Uuid
+  quoteRef            String          @unique
+  revision            Int             @default(1)
+  status              QuotationStatus @default(DRAFT)
+
+  // Financial Fields
+  currency            Currency        @default(BHD)
+  fxRate              Float           @default(1) // Rate to BHD
+  totalCost           Float           @default(0)
+  markupPercent       Float           @default(0)
+  insurancePercent    Float           @default(0)
+  financeCharge       Float           @default(0)
+  subtotal            Float           @default(0)
+  vatPercent          Float           @default(0)
+  totalWithVAT        Float           @default(0)
+  profitMarginBHD     Float           @default(0)
+  fxGain              Float?
+
+  // Timeline and Terms
+  validUntil           DateTime
+  paymentTerms         String?
+  deliveryTerms        String?
+  expectedDeliveryDate DateTime?
+
+  // Approval
+  marginApprovalPopup Boolean   @default(false)
+  approvedById        String?   @db.Uuid
+  approvedBy          StaffUser? @relation("ApprovedQuotations", fields: [approvedById], references: [staffId])
+
+  // Audit
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String    @db.Uuid
+  updatedById String    @db.Uuid
+  createdBy   StaffUser @relation("CreatedQuotations", fields: [createdById], references: [staffId])
+  updatedBy   StaffUser @relation("UpdatedQuotations", fields: [updatedById], references: [staffId])
+
+  // Relations
+  opportunityId  String        @db.Uuid
+  opportunity    Opportunity   @relation(fields: [opportunityId], references: [id])
+  items          QuoteItem[]
+  order          Order?
+  documents      Document[]
+  communications Communication[]
+
+  @@map("quotations")
+}
+
+model QuoteItem {
+  id          String @id @default(uuid()) @db.Uuid
+  description String
+  quantity    Int
+  unitPrice   Float // Price per unit in specified currency
+  totalPrice  Float // quantity * unitPrice
+  unitCost    Float
+  totalCost   Float // quantity * unitCost
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quotationId String    @db.Uuid
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@map("quote_items")
+}
+
+model Order {
+  id                   String      @id @default(uuid()) @db.Uuid
+  orderRef             String      @unique
+  status               OrderStatus @default(PENDING_CONFIRMATION)
+  orderDate            DateTime    @default(now())
+
+  // Financials
+  totalValue           Float
+  currency             Currency    @default(BHD)
+
+  // Timeline
+  expectedDeliveryDate DateTime?
+
+  // Audit
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String    @db.Uuid
+  updatedById String    @db.Uuid
+  createdBy   StaffUser @relation("CreatedOrders", fields: [createdById], references: [staffId])
+  updatedBy   StaffUser @relation("UpdatedOrders", fields: [updatedById], references: [staffId])
+
+  // Relations
+  opportunityId String      @db.Uuid
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  quotationId   String      @unique @db.Uuid
+  quotation     Quotation   @relation(fields: [quotationId], references: [id])
+
+  purchaseOrder  PurchaseOrder?
+  shipments      Shipment[]
+  payments       Payment[]
+  documents      Document[]
+  communications Communication[]
+
+  @@map("orders")
+}
+
+model PurchaseOrder {
+  id        String   @id @default(uuid()) @db.Uuid
+  poRef     String   @unique
+  issueDate DateTime @default(now())
+  supplier  String
+  totalValue Float
+  currency  Currency @default(BHD)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderId   String   @unique @db.Uuid
+  order     Order    @relation(fields: [orderId], references: [id])
+  documents Document[]
+
+  @@map("purchase_orders")
+}
+
+model Shipment {
+  id                   String         @id @default(uuid()) @db.Uuid
+  shipmentRef          String         @unique
+  status               ShipmentStatus @default(PENDING)
+  trackingNumber       String?
+  carrier              String?
+
+  // Timeline
+  shippedOn            DateTime?
+  expectedDeliveryDate DateTime?
+  actualShipmentDate   DateTime?
+
+  // Audit
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String    @db.Uuid
+  updatedById String    @db.Uuid
+  createdBy   StaffUser @relation("CreatedShipments", fields: [createdById], references: [staffId])
+  updatedBy   StaffUser @relation("UpdatedShipments", fields: [updatedById], references: [staffId])
+
+  // Relations
+  orderId   String     @db.Uuid
+  order     Order      @relation(fields: [orderId], references: [id])
+  payments  Payment[]
+  documents Document[]
+
+  @@map("shipments")
+}
+
+model Payment {
+  id                String        @id @default(uuid()) @db.Uuid
+  paymentRef        String        @unique
+  amount            Float
+  currency          Currency      @default(BHD)
+  paymentMethod     String // e.g., "Bank Transfer", "Credit Card"
+  status            PaymentStatus @default(PENDING)
+
+  // Timeline
+  paymentDate       DateTime      @default(now())
+  paymentReceivedOn DateTime?
+
+  // Audit
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String    @db.Uuid
+  updatedById String    @db.Uuid
+  createdBy   StaffUser @relation("CreatedPayments", fields: [createdById], references: [staffId])
+  updatedBy   StaffUser @relation("UpdatedPayments", fields: [updatedById], references: [staffId])
+
+  // Relations
+  orderId    String    @db.Uuid
+  order      Order     @relation(fields: [orderId], references: [id])
+  shipmentId String?   @db.Uuid
+  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
+  documents  Document[]
+
+  @@map("payments")
+}
+
+model Document {
+  id        String   @id @default(uuid()) @db.Uuid
+  fileName  String
+  fileType  String // e.g., "pdf", "docx"
+  url       String
+  sizeBytes Int
+
+  createdAt DateTime @default(now())
+
+  opportunityId  String?       @db.Uuid
+  opportunity    Opportunity?  @relation(fields: [opportunityId], references: [id])
+  quotationId    String?       @db.Uuid
+  quotation      Quotation?    @relation(fields: [quotationId], references: [id])
+  orderId        String?       @db.Uuid
+  order          Order?        @relation(fields: [orderId], references: [id])
+  purchaseOrderId String?      @db.Uuid
+  purchaseOrder  PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  shipmentId     String?       @db.Uuid
+  shipment       Shipment?     @relation(fields: [shipmentId], references: [id])
+  paymentId      String?       @db.Uuid
+  payment        Payment?      @relation(fields: [paymentId], references: [id])
+
+  @@map("documents")
+}
+
+model Communication {
+  id        String                 @id @default(uuid()) @db.Uuid
+  type      CommunicationType
+  direction CommunicationDirection
+  content   String                 @db.Text
+  subject   String?
+  sender    String // Can be a StaffUser ID or an external email/phone
+  recipient String? // Can be a StaffUser ID or an external email/phone
+  timestamp DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations to entities
+  customerId String? @db.Uuid
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  opportunityId String? @db.Uuid
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id])
+
+  quotationId String? @db.Uuid
+  quotation   Quotation? @relation(fields: [quotationId], references: [id])
+
+  orderId String? @db.Uuid
+  order   Order? @relation(fields: [orderId], references: [id])
+
+  // Relation to the staff member who logged/sent the communication
+  loggedByStaffId String?    @db.Uuid
+  loggedBy        StaffUser? @relation("LoggedBy", fields: [loggedByStaffId], references: [staffId])
+
+  @@map("communications")
+}

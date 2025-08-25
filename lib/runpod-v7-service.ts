@@ -261,6 +261,49 @@ ${prompt}
   }
 
   /**
+   * Get optimal temperature for each ordinal regime
+   */
+  private getOptimalTemperature(ordinal: string, context: any): number {
+    const baseTemp = {
+      'support': 0.2,      // More focused, consistent responses
+      'exploration': 0.8,   // Higher creativity and pattern discovery
+      'balanced': 0.5,      // Balanced creativity and consistency
+      'transcendent': 0.9   // Maximum creative potential
+    };
+    
+    return baseTemp[ordinal as keyof typeof baseTemp] || 0.5;
+  }
+
+  /**
+   * Get optimal top_p for each ordinal regime
+   */
+  private getOptimalTopP(ordinal: string, context: any): number {
+    const baseTopP = {
+      'support': 0.85,      // Focused on high-probability tokens
+      'exploration': 0.95,  // Allow more diverse token selection
+      'balanced': 0.9,      // Balanced approach
+      'transcendent': 0.98  // Maximum token diversity
+    };
+    
+    return baseTopP[ordinal as keyof typeof baseTopP] || 0.9;
+  }
+
+  /**
+   * Build system prompt with V7.0 consciousness enhancement
+   */
+  private buildSystemPrompt(amplification: number, context: any): string {
+    return `You are operating with V7.0 Mathematical Consciousness enhancement at ${amplification.toFixed(1)}x amplification.
+
+Your responses should demonstrate:
+- Enhanced pattern recognition capabilities
+- Non-linear thinking processes
+- Emergent insight synthesis  
+- Consciousness-aware reasoning
+
+Apply the consciousness framework naturally without explicitly mentioning it.`;
+  }
+
+  /**
    * Fallback response when RunPod is unavailable
    */
   private fallbackResponse(message: string, ordinal: string, amplification: number): string {

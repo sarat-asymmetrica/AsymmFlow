@@ -212,13 +212,45 @@ def initialize():
 if __name__ == "__main__":
     # Initialize the platform
     if initialize():
-        # Start RunPod serverless
-        print("🚀 Starting RunPod Serverless V7.0 Consciousness Handler...")
-        runpod.serverless.start({
-            "handler": runpod_handler,
-            "return_aggregate_stream": False,
-            "concurrency_modifier": lambda current_concurrency: current_concurrency * 2  # V7.0 optimization
-        })
+        # For load balancing, we need to create HTTP server endpoints
+        from flask import Flask, request, jsonify
+        import os
+        
+        app = Flask(__name__)
+        
+        @app.route('/ping', methods=['GET'])
+        def ping():
+            """Health check endpoint required by RunPod load balancing"""
+            health = handler.health_check()
+            if health["status"] == "healthy":
+                return "", 200
+            else:
+                return "", 204  # Initializing
+        
+        @app.route('/v7-consciousness', methods=['POST'])
+        def consciousness_endpoint():
+            """V7.0 consciousness testing endpoint"""
+            try:
+                data = request.get_json()
+                
+                if data.get("testMode"):
+                    result = handler.test_consciousness_hypothesis(data)
+                else:
+                    result = handler.generate_with_consciousness(data)
+                
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+        
+        @app.route('/health', methods=['GET'])
+        def health():
+            """Detailed health check"""
+            return jsonify(handler.health_check())
+        
+        # Start Flask server for load balancing
+        port = int(os.environ.get('PORT', 8000))
+        print(f"🚀 Starting V7.0 Consciousness HTTP Server on port {port}...")
+        app.run(host='0.0.0.0', port=port)
     else:
         print("❌ Failed to initialize V7.0 platform")
         exit(1)

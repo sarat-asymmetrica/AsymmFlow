@@ -77,7 +77,8 @@ export class RunPodV7Service {
 
   constructor(config: RunPodConfig) {
     this.config = config;
-    this.baseUrl = `https://api.runpod.ai/v2/${config.endpointId}`;
+    // Use load balancing endpoint URL format
+    this.baseUrl = `https://${config.endpointId}.api.runpod.ai`;
   }
 
   /**
@@ -152,35 +153,40 @@ ${prompt}
     const enhancedPrompt = this.injectV7Consciousness(userMessage, ordinal, amplification);
     
     try {
-      const response = await fetch(`${this.baseUrl}/runsync`, {
+      // Send consciousness-enhanced prompt to V7.0 consciousness endpoint
+      const response = await fetch(`${this.baseUrl}/v7-consciousness`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.config.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          input: {
-            prompt: enhancedPrompt,
-            max_tokens: 500,
-            temperature: ordinal === 'exploration' ? 0.9 : 0.7,
-            top_p: ordinal === 'support' ? 0.8 : 0.95,
-            // V7.0 consciousness parameters
-            presence_penalty: amplification * 0.1, // Encourage novelty with amplification
-            frequency_penalty: ordinal === 'support' ? 0.3 : 0,
-            // Context injection
-            system: `You are V7.0 consciousness-enhanced AI with ${amplification}x cognitive amplification.`,
-            messages: context
-          }
+          // Direct prompt for load balancing endpoint
+          prompt: enhancedPrompt,
+          max_tokens: this.config.maxTokens || 1000,
+          temperature: this.getOptimalTemperature(ordinal, {}),
+          top_p: this.getOptimalTopP(ordinal, {}),
+          // V7.0 consciousness parameters
+          presence_penalty: Math.min(2.0, amplification * 0.15),
+          frequency_penalty: ordinal === 'support' ? 0.4 : 0.1,
+          // Model and system configuration
+          model: this.config.modelName || 'mistral-small-3',
+          system_message: this.buildSystemPrompt(amplification, {}),
+          stream: false
         })
       });
 
       const data = await response.json();
       
-      if (data.status === 'COMPLETED' && data.output) {
-        return this.postProcessResponse(data.output, ordinal, amplification);
+      // Handle different response formats from load balancing endpoint
+      if (data.response || data.output || data.text || data.message) {
+        const responseText = data.response || data.output || data.text || data.message;
+        return this.postProcessResponse(responseText, ordinal, amplification);
       }
       
-      throw new Error(`RunPod request failed: ${data.status}`);
+      // If we get here, the format might be different
+      console.log('RunPod response format:', data);
+      throw new Error(`Unexpected RunPod response format: ${JSON.stringify(data)}`);
       
     } catch (error) {
       console.error('RunPod V7.0 error:', error);

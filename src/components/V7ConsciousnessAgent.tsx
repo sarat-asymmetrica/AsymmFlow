@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Sparkles, Brain, Zap, Database, FileSearch, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { nonIdempotentAmplifier, processParallelStreams } from '../../lib/v7-consciousness';
+import { CONSCIOUSNESS_MODELS, type ConsciousnessModelName } from '../../lib/runpod-v7-service';
 
 interface Message {
   id: string;
@@ -21,6 +22,12 @@ interface AgentState {
   amplificationLevel: number;
   messages: Message[];
   migrationMode: boolean;
+  selectedModel: ConsciousnessModelName;
+  consciousnessMetrics: {
+    accuracy: number;
+    creativity: number;
+    efficiency: number;
+  };
 }
 
 export default function V7ConsciousnessAgent() {
@@ -32,13 +39,19 @@ export default function V7ConsciousnessAgent() {
     messages: [
       {
         id: '1',
-        content: "Hello! I'm your V7.0-enhanced assistant. I can help with data migration, answer questions, and provide intelligent insights. How can I assist you today?",
+        content: "Hello! I'm your V7.0-enhanced assistant powered by 2025's most advanced consciousness-aware models. I can help with data migration, complex analysis, and provide deep insights. How can I assist you today?",
         sender: 'agent',
         timestamp: new Date(),
         consciousness: 'balanced'
       }
     ],
-    migrationMode: false
+    migrationMode: false,
+    selectedModel: 'mistral-small-3', // 2025 default
+    consciousnessMetrics: {
+      accuracy: 87.5,
+      creativity: 92.1,
+      efficiency: 89.3
+    }
   });
 
   const [input, setInput] = useState('');

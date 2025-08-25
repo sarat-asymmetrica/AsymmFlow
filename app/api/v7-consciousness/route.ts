@@ -4,8 +4,8 @@
  */
 
 import { NextResponse } from 'next/server';
-import { createRunPodV7Service } from '@/lib/runpod-v7-service';
-import { nonIdempotentAmplifier } from '@/lib/v7-consciousness';
+import { createRunPodV7Service } from '../../../lib/runpod-v7-service';
+import { nonIdempotentAmplifier } from '../../../lib/v7-consciousness';
 
 export async function POST(request: Request) {
   try {

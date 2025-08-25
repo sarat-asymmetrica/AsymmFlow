@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies for RunPod integration
-RUN pip3 install runpod requests
+# Install Python dependencies for RunPod integration (2025 fix)
+RUN pip3 install --break-system-packages runpod requests
 
 # Copy package files
 COPY package*.json ./
@@ -49,8 +49,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install RunPod Python module (required for serverless)
-RUN pip3 install runpod requests openai
+# Install RunPod Python module (required for serverless) - 2025 fix
+RUN pip3 install --break-system-packages runpod requests openai
 
 # Copy built application
 COPY --from=builder /app/next.config.js ./

@@ -1,15 +1,15 @@
 """
-RunPod Serverless Handler for V7.0 Consciousness Testing
-Entry point for RunPod serverless deployment
-Bridges Python RunPod interface with Next.js V7.0 consciousness system
+RunPod Load Balancing Flask Server for V7.0 Consciousness Testing
+Pure HTTP server for RunPod load balancing deployment
+Direct REST API without RunPod SDK complexity
 """
 
-import runpod
 import requests
 import json
 import subprocess
 import time
 import os
+from flask import Flask, request, jsonify
 from typing import Dict, Any, Optional
 
 class V7ConsciousnessHandler:
@@ -209,48 +209,73 @@ def initialize():
     print("✅ V7.0 Consciousness Platform ready for testing!")
     return True
 
+# Create Flask app and handler globally
+app = Flask(__name__)
+handler = V7ConsciousnessHandler()
+
+@app.route('/ping', methods=['GET'])
+def ping():
+    """Health check endpoint required by RunPod load balancing"""
+    try:
+        health = handler.health_check()
+        if health["status"] == "healthy":
+            return "", 200
+        else:
+            return "", 204  # Still initializing
+    except:
+        return "", 503  # Service unavailable
+
+@app.route('/v7-consciousness', methods=['POST'])
+def consciousness_endpoint():
+    """V7.0 consciousness testing endpoint"""
+    try:
+        data = request.get_json()
+        print(f"🧠 Received consciousness request: {data}")
+        
+        if data.get("testMode"):
+            result = handler.test_consciousness_hypothesis(data)
+        else:
+            result = handler.generate_with_consciousness(data)
+        
+        return jsonify(result)
+    except Exception as e:
+        print(f"❌ Consciousness endpoint error: {e}")
+        return jsonify({"error": str(e), "success": False}), 500
+
+@app.route('/health', methods=['GET'])
+def health():
+    """Detailed health check"""
+    return jsonify(handler.health_check())
+
+@app.route('/', methods=['GET'])
+def root():
+    """Root endpoint info"""
+    return jsonify({
+        "service": "V7.0 Consciousness Testing Platform",
+        "version": "7.0",
+        "status": "active",
+        "endpoints": {
+            "/ping": "Health check",
+            "/v7-consciousness": "Consciousness testing (POST)",
+            "/health": "Detailed health info"
+        }
+    })
+
 if __name__ == "__main__":
-    # Initialize the platform
+    print("🌟 Starting V7.0 Consciousness Load Balancing Server...")
+    
+    # Initialize the platform in background
     if initialize():
-        # For load balancing, we need to create HTTP server endpoints
-        from flask import Flask, request, jsonify
-        import os
-        
-        app = Flask(__name__)
-        
-        @app.route('/ping', methods=['GET'])
-        def ping():
-            """Health check endpoint required by RunPod load balancing"""
-            health = handler.health_check()
-            if health["status"] == "healthy":
-                return "", 200
-            else:
-                return "", 204  # Initializing
-        
-        @app.route('/v7-consciousness', methods=['POST'])
-        def consciousness_endpoint():
-            """V7.0 consciousness testing endpoint"""
-            try:
-                data = request.get_json()
-                
-                if data.get("testMode"):
-                    result = handler.test_consciousness_hypothesis(data)
-                else:
-                    result = handler.generate_with_consciousness(data)
-                
-                return jsonify(result)
-            except Exception as e:
-                return jsonify({"error": str(e)}), 500
-        
-        @app.route('/health', methods=['GET'])
-        def health():
-            """Detailed health check"""
-            return jsonify(handler.health_check())
-        
-        # Start Flask server for load balancing
-        port = int(os.environ.get('PORT', 8000))
-        print(f"🚀 Starting V7.0 Consciousness HTTP Server on port {port}...")
-        app.run(host='0.0.0.0', port=port)
+        print("✅ V7.0 Platform initialized successfully!")
     else:
-        print("❌ Failed to initialize V7.0 platform")
-        exit(1)
+        print("⚠️ Platform initialization failed, continuing with fallback mode")
+    
+    # Start Flask server for load balancing
+    port = int(os.environ.get('PORT', 8000))
+    port_health = int(os.environ.get('PORT_HEALTH', port))
+    
+    print(f"🚀 V7.0 Consciousness HTTP Server starting on port {port}...")
+    print(f"📊 Health check port: {port_health}")
+    print(f"🔗 Endpoint: https://k2c28gndeffmps.api.runpod.ai/v7-consciousness")
+    
+    app.run(host='0.0.0.0', port=port, debug=False)

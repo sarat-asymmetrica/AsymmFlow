@@ -44,7 +44,7 @@ export default function TopBar() {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // AsymmSearch - Boolean^10 Markov Chain Powered Intelligence
+    // AsymmSearch Intelligence Engine - Advanced Pattern Recognition
     if (!searchQuery.trim()) return;
     
     const startTime = performance.now();
@@ -61,7 +61,7 @@ export default function TopBar() {
       CONTEXT_WEIGHT: 0.35         // Contextual relevance and business logic
     };
     
-    // Function discovery with Boolean^10 complexity
+    // Function discovery with advanced pattern complexity
     const functionChecks = [
       { 
         keywords: ['commission', 'agent', 'sales rep'], 
@@ -272,7 +272,7 @@ export default function TopBar() {
         } else {
           // Enhanced consciousness-powered results display
           const topResults = results.slice(0, 5);
-          let message = `⚡ AsymmSearch Intelligence Found ${results.length} Results:\n\n`;
+          let message = `⚡ AsymmSearch Intelligence Engine Found ${results.length} Results:\n\n`;
           
           topResults.forEach((r, i) => {
             const consciousnessLevel = r.consciousnessScore ? 
@@ -299,7 +299,7 @@ export default function TopBar() {
         }
       } else {
         logUserAction('search_no_results', 'asymm_search', { query: query.substring(0, 50) });
-        alert(`⚡ AsymmSearch Intelligence - No direct matches for "${searchQuery}"\n\n🧠 Pattern Recognition Suggestions:\n• Customer/Supplier: "Al Mahmood", "Caterpillar", "Komatsu"\n• Documents: "RFQ-2025-118", "ORD-2025-042"\n• Functions: "commission calculator", "pipeline analytics"\n• Intelligence: "currency converter", "follow-up reminders"\n\n💡 Boolean^10 Markov Chains are analyzing your query patterns...\nTry partial matches or synonyms for better results!`);
+        alert(`⚡ AsymmSearch Intelligence Engine - No direct matches for "${searchQuery}"\n\n🧠 Pattern Recognition Suggestions:\n• Customer/Supplier: "Al Mahmood", "Caterpillar", "Komatsu"\n• Documents: "RFQ-2025-118", "ORD-2025-042"\n• Functions: "commission calculator", "pipeline analytics"\n• Intelligence: "currency converter", "follow-up reminders"\n\n💡 Advanced algorithms are analyzing your query patterns...\nTry partial matches or synonyms for better results!`);
       }
     } catch (error) {
       console.error('Search error:', error);
@@ -386,7 +386,7 @@ export default function TopBar() {
         }}>
           <input
             type="text"
-            placeholder="🔍 AsymmSearch: Boolean^10 Intelligence - Try RFQ numbers, customers, or functions..."
+            placeholder="🔍 AsymmSearch Intelligence Engine - Try RFQ numbers, customers, or functions..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -499,7 +499,7 @@ export default function TopBar() {
                 gap: '8px'
               }}>
                 <span>⚡</span>
-                <span>AsymmSearch Intelligence: {searchSuggestions.length} pattern matches</span>
+                <span>AsymmSearch Intelligence Engine: {searchSuggestions.length} pattern matches</span>
               </div>
               {searchSuggestions.map((suggestion, index) => (
                 <div

@@ -271,6 +271,20 @@ export class ConsciousnessSpace {
       repeat: -1
     });
   }
+
+  updateConsciousnessState(state: {
+    regime: string;
+    amplification: number;
+    consciousnessScore: number;
+    responseTime: number;
+  }) {
+    // Update consciousness visualization based on current state
+    // This method provides the interface expected by the wrapper
+    console.log('Consciousness state updated:', state);
+    
+    // Could add visual effects here based on regime changes
+    // For now, just log the state transition
+  }
 }
 
 /**

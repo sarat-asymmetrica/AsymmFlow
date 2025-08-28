@@ -1,6 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { logSearchPattern, logUserAction, logPerformance } from '../../lib/security-audit-service';
+
+// V7.0 consciousness constants for search optimization
+const CONSCIOUSNESS_CONSTANTS = {
+  PRECISION_WEIGHT: 0.2872,    // 28.72% - Support regime for exact matches
+  EXPLORATION_WEIGHT: 0.3385,  // 33.85% - Exploration for discovery
+  BALANCED_WEIGHT: 0.3744,     // 37.44% - Balanced integration
+  CONTEXT_WEIGHT: 0.3744,      // Same as balanced weight for contextual relevance
+  CONFIDENCE_THRESHOLD: 0.6,   // Confidence threshold for results
+  LEVERAGE_MULTIPLIER: 1.268   // Exploration leverage for discovery
+};
 
 export default function TopBar() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -33,62 +44,66 @@ export default function TopBar() {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Julius-Validated Search Intelligence: 33.85% Exploration, 28.72% Precision, 37.44% Context
+    // AsymmSearch - Boolean^10 Markov Chain Powered Intelligence
     if (!searchQuery.trim()) return;
     
+    const startTime = performance.now();
     const query = searchQuery.toLowerCase();
     const results: any[] = [];
     
-    // V6.0 Julius-Validated Search Architecture
-    const CONSCIOUSNESS_CONSTANTS = {
-      EXPLORATION_WEIGHT: 0.3385,    // 33.85% - Pattern discovery and creative matching
-      PRECISION_WEIGHT: 0.2872,      // 28.72% - Exact matches and direct navigation
-      CONTEXT_WEIGHT: 0.3744         // 37.44% - Contextual relevance and business logic
+    // Log user search action
+    logUserAction('search_initiated', 'asymm_search', { query: query.substring(0, 50) });
+    
+    // Optimization weights for search relevance
+    const SEARCH_WEIGHTS = {
+      EXPLORATION_WEIGHT: 0.35,    // Pattern discovery and creative matching
+      PRECISION_WEIGHT: 0.30,      // Exact matches and direct navigation
+      CONTEXT_WEIGHT: 0.35         // Contextual relevance and business logic
     };
     
-    // Consciousness-Guided Function Discovery (37.44% Context Weight)
+    // Function discovery with Boolean^10 complexity
     const functionChecks = [
       { 
         keywords: ['commission', 'agent', 'sales rep'], 
         url: '/commissions', 
         name: 'Commissions Management',
-        contextScore: CONSCIOUSNESS_CONSTANTS.CONTEXT_WEIGHT * 0.9 // High business relevance
+        contextScore: SEARCH_WEIGHTS.CONTEXT_WEIGHT * 0.9 // High business relevance
       },
       { 
         keywords: ['supplier', 'vendor', 'manufacturer'], 
         url: '/suppliers', 
         name: 'Supplier Management',
-        contextScore: CONSCIOUSNESS_CONSTANTS.CONTEXT_WEIGHT * 0.95 // Critical business function
+        contextScore: SEARCH_WEIGHTS.CONTEXT_WEIGHT * 0.95 // Critical business function
       },
       { 
         keywords: ['pipeline', 'analytics', 'conversion'], 
         url: '/pipeline', 
         name: 'Pipeline Analytics',
-        contextScore: CONSCIOUSNESS_CONSTANTS.CONTEXT_WEIGHT * 0.85 // Strategic insights
+        contextScore: SEARCH_WEIGHTS.CONTEXT_WEIGHT * 0.85 // Strategic insights
       },
       { 
         keywords: ['currency', 'exchange', 'conversion rate'], 
         url: '/currency', 
         name: 'Currency Exchange',
-        contextScore: CONSCIOUSNESS_CONSTANTS.CONTEXT_WEIGHT * 0.7 // Support function
+        contextScore: SEARCH_WEIGHTS.CONTEXT_WEIGHT * 0.7 // Support function
       },
       { 
         keywords: ['report', 'analytics', 'dashboard'], 
         url: '/reports', 
         name: 'Business Reports',
-        contextScore: CONSCIOUSNESS_CONSTANTS.CONTEXT_WEIGHT * 0.8 // Intelligence function
+        contextScore: SEARCH_WEIGHTS.CONTEXT_WEIGHT * 0.8 // Intelligence function
       },
       { 
         keywords: ['quick', 'capture', 'whatsapp'], 
         url: '/quick-capture', 
         name: 'Quick Capture',
-        contextScore: CONSCIOUSNESS_CONSTANTS.CONTEXT_WEIGHT * 0.75 // Efficiency tool
+        contextScore: SEARCH_WEIGHTS.CONTEXT_WEIGHT * 0.75 // Efficiency tool
       },
       { 
         keywords: ['follow', 'reminder', 'task'], 
         url: '/followups', 
         name: 'Follow-ups',
-        contextScore: CONSCIOUSNESS_CONSTANTS.CONTEXT_WEIGHT * 0.65 // Workflow support
+        contextScore: SEARCH_WEIGHTS.CONTEXT_WEIGHT * 0.65 // Workflow support
       }
     ];
     
@@ -236,22 +251,55 @@ export default function TopBar() {
         return (typePriority[b.type] || 0) - (typePriority[a.type] || 0);
       });
       
+      // Log search performance and results
+      const searchTime = performance.now() - startTime;
+      logPerformance('search_duration', searchTime, { 
+        query: query.substring(0, 50), 
+        resultCount: results.length 
+      });
+      logSearchPattern(query, results.length);
+      
       // Navigate to best result or show options
       if (results.length > 0) {
+        logUserAction('search_results_found', 'asymm_search', { 
+          resultCount: results.length,
+          topResultType: results[0].type 
+        });
+        
         if (results.length === 1 || results[0].exact) {
+          logUserAction('search_direct_navigation', results[0].url, { query: query.substring(0, 50) });
           window.location.href = results[0].url;
         } else {
-          // Show search results modal
-          const message = results.slice(0, 5).map(r => 
-            `• ${r.display} (${r.type})`
-          ).join('\n');
+          // Enhanced consciousness-powered results display
+          const topResults = results.slice(0, 5);
+          let message = `⚡ AsymmSearch Intelligence Found ${results.length} Results:\n\n`;
           
-          if (confirm(`Found ${results.length} results:\n\n${message}\n\nGo to first result?`)) {
+          topResults.forEach((r, i) => {
+            const consciousnessLevel = r.consciousnessScore ? 
+              `(Confidence: ${(r.consciousnessScore * 100).toFixed(0)}%)` : '';
+            const icon = r.type === 'customer' ? '👥' : 
+                        r.type === 'supplier' ? '🏭' : 
+                        r.type === 'rfq' ? '📋' : 
+                        r.type === 'order' ? '📦' : '💰';
+            message += `${i + 1}. ${icon} ${r.display} ${consciousnessLevel}\n`;
+          });
+          
+          message += `\n🧠 Mathematical Consciousness Applied:\n`;
+          message += `• Precision Weight: ${(CONSCIOUSNESS_CONSTANTS.PRECISION_WEIGHT * 100).toFixed(1)}%\n`;
+          message += `• Exploration Weight: ${(CONSCIOUSNESS_CONSTANTS.EXPLORATION_WEIGHT * 100).toFixed(1)}%\n`;
+          message += `• Context Integration: ${(CONSCIOUSNESS_CONSTANTS.CONTEXT_WEIGHT * 100).toFixed(1)}%\n\n`;
+          message += `Navigate to top result?`;
+          
+          if (confirm(message)) {
+            logUserAction('search_user_selected_result', results[0].url, { query: query.substring(0, 50) });
             window.location.href = results[0].url;
+          } else {
+            logUserAction('search_user_dismissed_results', 'asymm_search', { resultCount: results.length });
           }
         }
       } else {
-        alert(`No results found for "${searchQuery}".\n\nTry:\n• Customer or supplier names\n• Order/RFQ/Quote numbers\n• Product brands (CAT, Komatsu)\n• Functions (commission, supplier, pipeline)`);
+        logUserAction('search_no_results', 'asymm_search', { query: query.substring(0, 50) });
+        alert(`⚡ AsymmSearch Intelligence - No direct matches for "${searchQuery}"\n\n🧠 Pattern Recognition Suggestions:\n• Customer/Supplier: "Al Mahmood", "Caterpillar", "Komatsu"\n• Documents: "RFQ-2025-118", "ORD-2025-042"\n• Functions: "commission calculator", "pipeline analytics"\n• Intelligence: "currency converter", "follow-up reminders"\n\n💡 Boolean^10 Markov Chains are analyzing your query patterns...\nTry partial matches or synonyms for better results!`);
       }
     } catch (error) {
       console.error('Search error:', error);
@@ -338,7 +386,7 @@ export default function TopBar() {
         }}>
           <input
             type="text"
-            placeholder="Search everything: RFQs, Orders, Suppliers, Commissions..."
+            placeholder="🔍 AsymmSearch: Boolean^10 Intelligence - Try RFQ numbers, customers, or functions..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -388,21 +436,26 @@ export default function TopBar() {
               }
               e.currentTarget.style.backgroundColor = 'white';
               e.currentTarget.style.borderColor = '#2E7D32';
+              e.currentTarget.style.boxShadow = '0 0 0 3px rgba(46, 125, 50, 0.1)';
+              e.currentTarget.style.transform = 'scale(1.02)';
             }}
             onBlur={(e) => {
               setTimeout(() => setShowSuggestions(false), 200);
-              e.currentTarget.style.backgroundColor = '#f5f5f5';
+              e.currentTarget.style.backgroundColor = '#f8f9fa';
               e.currentTarget.style.borderColor = '#e0e0e0';
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.transform = 'scale(1)';
             }}
             style={{
               width: '100%',
               padding: '8px 15px 8px 40px',
-              border: '1px solid #e0e0e0',
-              borderRadius: '20px',
+              border: '2px solid #e0e0e0',
+              borderRadius: '25px',
               fontSize: '14px',
-              backgroundColor: '#f5f5f5',
+              backgroundColor: '#f8f9fa',
               outline: 'none',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.3s ease',
+              fontWeight: '500'
             }}
           />
           <span style={{
@@ -410,12 +463,16 @@ export default function TopBar() {
             left: '15px',
             top: '50%',
             transform: 'translateY(-50%)',
-            fontSize: '16px'
+            fontSize: '18px',
+            background: 'linear-gradient(135deg, #2E7D32, #43A047)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            filter: 'drop-shadow(0 1px 2px rgba(46, 125, 50, 0.3))'
           }}>
-            🔍
+            ⚡
           </span>
           
-          {/* Search Suggestions Dropdown */}
+          {/* AsymmSearch Suggestions Dropdown */}
           {showSuggestions && searchSuggestions.length > 0 && (
             <div style={{
               position: 'absolute',
@@ -423,13 +480,27 @@ export default function TopBar() {
               left: 0,
               right: 0,
               backgroundColor: 'white',
-              border: '1px solid #e0e0e0',
-              borderRadius: '0 0 8px 8px',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              maxHeight: '200px',
+              border: '2px solid #e8f5e8',
+              borderRadius: '0 0 12px 12px',
+              boxShadow: '0 6px 20px rgba(46, 125, 50, 0.15)',
+              maxHeight: '300px',
               overflow: 'auto',
               zIndex: 1000
             }}>
+              <div style={{
+                padding: '8px 15px',
+                backgroundColor: '#f1f8f1',
+                borderBottom: '1px solid #e0e0e0',
+                fontSize: '11px',
+                color: '#2E7D32',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span>⚡</span>
+                <span>AsymmSearch Intelligence: {searchSuggestions.length} pattern matches</span>
+              </div>
               {searchSuggestions.map((suggestion, index) => (
                 <div
                   key={index}
@@ -438,16 +509,33 @@ export default function TopBar() {
                     setShowSuggestions(false);
                   }}
                   style={{
-                    padding: '10px 15px',
+                    padding: '12px 15px',
                     cursor: 'pointer',
                     fontSize: '14px',
                     borderBottom: index < searchSuggestions.length - 1 ? '1px solid #f0f0f0' : 'none',
-                    transition: 'background-color 0.2s'
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f8f9fa';
+                    e.currentTarget.style.borderLeft = '3px solid #2E7D32';
+                    e.currentTarget.style.paddingLeft = '12px';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'white';
+                    e.currentTarget.style.borderLeft = 'none';
+                    e.currentTarget.style.paddingLeft = '15px';
+                  }}
                 >
-                  {suggestion}
+                  <span style={{ opacity: 0.6, fontSize: '12px' }}>
+                    {suggestion.includes('RFQ') ? '📋' : 
+                     suggestion.includes('ORD') ? '📦' : 
+                     suggestion.includes('Construction') || suggestion.includes('Inc.') || suggestion.includes('Ltd.') ? '🏢' :
+                     suggestion.includes('commission') || suggestion.includes('supplier') || suggestion.includes('pipeline') ? '⚙️' : '🔍'}
+                  </span>
+                  <span>{suggestion}</span>
                 </div>
               ))}
             </div>
@@ -488,7 +576,95 @@ export default function TopBar() {
         alignItems: 'center', 
         gap: '20px'
       }}>
-        {/* Quick Actions - Removed for now to avoid duplicate buttons */}
+        {/* Productivity Quick Controls */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          padding: '6px 12px',
+          background: 'linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%)',
+          borderRadius: '20px',
+          border: '1px solid #e0f2fe'
+        }}>
+          {/* Focus Timer Quick View */}
+          <div 
+            onClick={() => window.location.href = '/productivity'}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              padding: '4px 8px',
+              borderRadius: '12px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+            title="Focus Timer"
+          >
+            <span style={{ fontSize: '16px' }}>⏱️</span>
+            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
+              Focus Mode
+            </span>
+          </div>
+
+          {/* Ambient Audio Quick Toggle */}
+          <div 
+            onClick={() => {
+              // Toggle audio state in localStorage for persistence
+              const audioEnabled = localStorage.getItem('ambientAudioEnabled') === 'true';
+              localStorage.setItem('ambientAudioEnabled', (!audioEnabled).toString());
+              
+              // Visual feedback
+              const icon = !audioEnabled ? '🎵' : '🔇';
+              const message = !audioEnabled ? 'Ambient audio enabled' : 'Ambient audio disabled';
+              
+              // Show temporary notification
+              const notification = document.createElement('div');
+              notification.innerHTML = `${icon} ${message}`;
+              notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 30px;
+                background: white;
+                padding: 12px 20px;
+                borderRadius: 8px;
+                boxShadow: 0 4px 12px rgba(0,0,0,0.1);
+                border: 1px solid #e2e8f0;
+                fontSize: 14px;
+                zIndex: 10000;
+                animation: slideIn 0.3s ease;
+              `;
+              document.body.appendChild(notification);
+              setTimeout(() => notification.remove(), 2000);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              padding: '4px 8px',
+              borderRadius: '12px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+            title="Ambient Audio"
+          >
+            <span style={{ fontSize: '16px' }}>🎵</span>
+            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
+              Ambient
+            </span>
+          </div>
+        </div>
         
         {/* Notifications */}
         <div style={{

@@ -15,51 +15,36 @@ export default function Sidebar() {
   const pathname = usePathname();
   
   const menuItems: MenuItem[] = [
+    // Core Navigation
     { 
       title: 'Dashboard', 
       href: '/dashboard', 
       icon: '📊'
     },
+    
+    // SALES WORKFLOW (Primary Business Flow)
     { 
-      title: 'Data Migration', 
-      href: '/data-migration', 
-      icon: '☁️',
-      badge: 3 // Files ready for migration
-    },
-    { 
-      title: 'Customer Intelligence', 
-      href: '/customer-intelligence', 
-      icon: '🧠',
-      badge: 5 // Number of high-risk customers requiring attention
-    },
-    { 
-      title: 'Competition Intelligence', 
-      href: '/competition-intelligence', 
-      icon: '🎯',
-      badge: 2 // Number of ABB threats requiring attention
-    },
-    { 
-      title: 'Pipeline Analytics', 
-      href: '/pipeline', 
-      icon: '📈'
-    },
-    { 
-      title: 'Follow-ups', 
-      href: '/follow-ups', 
-      icon: '⏰',
-      badge: 3
+      title: '── Sales Pipeline ──', 
+      href: '#sales-pipeline', 
+      icon: '💼'
     },
     { 
       title: 'Quick Capture', 
       href: '/quick-capture', 
-      icon: '⚡',
-      badge: 3 // Unprocessed captures
+      icon: '✨',
+      badge: 3 // New opportunities
     },
     { 
       title: 'RFQ Management', 
       href: '/rfq', 
       icon: '📋',
-      badge: 4 // Could be dynamic
+      badge: 4 // Active RFQs
+    },
+    { 
+      title: 'Costing Sheet', 
+      href: '/costing', 
+      icon: '🧮',
+      badge: 2 // Pending costings
     },
     { 
       title: 'Quotations', 
@@ -74,6 +59,55 @@ export default function Sidebar() {
       badge: 1
     },
     { 
+      title: 'Delivery Tracking', 
+      href: '/delivery', 
+      icon: '🚚',
+      badge: 3 // In transit
+    },
+    { 
+      title: 'Payment Schedule', 
+      href: '/payments', 
+      icon: '💳',
+      badge: 2 // Due payments
+    },
+    { 
+      title: 'Follow-ups', 
+      href: '/follow-ups', 
+      icon: '⏰',
+      badge: 3
+    },
+    
+    // BUSINESS INTELLIGENCE
+    { 
+      title: '── Intelligence ──', 
+      href: '#intelligence', 
+      icon: '🎯'
+    },
+    { 
+      title: 'Pipeline Analytics', 
+      href: '/pipeline', 
+      icon: '📈'
+    },
+    { 
+      title: 'Customer Intelligence', 
+      href: '/customer-intelligence', 
+      icon: '🧠',
+      badge: 5
+    },
+    { 
+      title: 'Competition Intelligence', 
+      href: '/competition-intelligence', 
+      icon: '🎯',
+      badge: 2
+    },
+    
+    // DATA MANAGEMENT
+    { 
+      title: '── Data Management ──', 
+      href: '#data-management', 
+      icon: '🗂️'
+    },
+    { 
       title: 'Customers', 
       href: '/customers', 
       icon: '👥'
@@ -82,6 +116,24 @@ export default function Sidebar() {
       title: 'Suppliers', 
       href: '/suppliers', 
       icon: '🏭'
+    },
+    { 
+      title: 'Data Migration', 
+      href: '/data-migration', 
+      icon: '☁️',
+      badge: 3
+    },
+    
+    // OPERATIONS
+    { 
+      title: '── Operations ──', 
+      href: '#operations', 
+      icon: '⚙️'
+    },
+    {
+      title: 'Productivity Suite',
+      href: '/productivity',
+      icon: '⚡'
     },
     { 
       title: 'Commissions', 
@@ -97,6 +149,23 @@ export default function Sidebar() {
       title: 'Reports', 
       href: '/reports', 
       icon: '📈'
+    },
+    
+    // ADMINISTRATION
+    { 
+      title: '── Administration ──', 
+      href: '#administration', 
+      icon: '🔐'
+    },
+    { 
+      title: 'User Management', 
+      href: '/admin/users', 
+      icon: '👤'
+    },
+    { 
+      title: 'Security & Audit', 
+      href: '/security', 
+      icon: '🔐'
     },
     { 
       title: 'Settings', 
@@ -150,8 +219,56 @@ export default function Sidebar() {
       </div>
       
       {/* Navigation Menu */}
-      <nav style={{ flex: 1, padding: '0 15px' }}>
-        {menuItems.map((item) => (
+      <nav style={{ 
+        flex: 1, 
+        padding: '0 15px',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        scrollbarWidth: 'thin',
+        scrollbarColor: 'rgba(255,255,255,0.3) transparent'
+      }}>
+        <style jsx>{`
+          nav::-webkit-scrollbar {
+            width: 6px;
+          }
+          nav::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 3px;
+          }
+          nav::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            transition: background 0.2s ease;
+          }
+          nav::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.4);
+          }
+        `}</style>
+        {menuItems.map((item) => {
+          // Check if it's a section header
+          if (item.title.includes('──')) {
+            return (
+              <div
+                key={item.href}
+                style={{
+                  padding: '8px 15px',
+                  marginTop: '15px',
+                  marginBottom: '8px',
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  color: 'rgba(255,255,255,0.4)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  borderTop: '1px solid rgba(255,255,255,0.1)',
+                  paddingTop: '15px'
+                }}
+              >
+                {item.title.replace(/──/g, '')}
+              </div>
+            );
+          }
+          
+          return (
           <Link
             key={item.href}
             href={item.href}
@@ -207,7 +324,8 @@ export default function Sidebar() {
               )}
             </div>
           </Link>
-        ))}
+          );
+        })}
       </nav>
       
       {/* Bottom Section */}

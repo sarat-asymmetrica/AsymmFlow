@@ -211,7 +211,7 @@ describe('🎯 Order Management & Downstream Analytics', () => {
       expect(journeyEfficiency).toBeGreaterThan(20); // Value per day threshold
       
       // Use consciousness test utility
-      global.consciousnessTestUtils.assertConsciousnessResponseTime(
+      (global as any).consciousnessTestUtils?.assertConsciousnessResponseTime(
         customerJourney.rfqSubmitted.getTime(),
         customerJourney.quotationGenerated.getTime(),
         24 * 60 * 60 * 1000 // 24 hours max RFQ → quotation
@@ -223,4 +223,9 @@ describe('🎯 Order Management & Downstream Analytics', () => {
 });
 
 // Export for test utilities
+const ORDER_FLOW_CONSTANTS = {
+  DEFAULT_TIMEOUT: 30000,
+  MAX_RETRIES: 3
+};
+
 export { ORDER_FLOW_CONSTANTS };

@@ -1,114 +1,214 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 export default function HomePage() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
   return (
     <div style={{ 
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'linear-gradient(180deg, #0f1922 0%, #1a2832 50%, #243442 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '20px'
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      <div style={{ 
-        backgroundColor: 'white',
-        borderRadius: '20px',
-        padding: '40px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-        maxWidth: '800px',
-        width: '100%'
+      {/* Subtle animated background particles */}
+      <div style={{
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        opacity: 0.1,
+        pointerEvents: 'none'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ 
-            fontSize: '48px', 
-            fontWeight: 'bold',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            marginBottom: '10px'
-          }}>
-            PH Trading ERP
-          </h1>
-          <p style={{ color: '#6c757d', fontSize: '18px' }}>
-            Industrial Equipment Trading Management System
-          </p>
-        </div>
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            style={{
+              position: 'absolute',
+              width: '2px',
+              height: '2px',
+              background: '#4a9b9f',
+              borderRadius: '50%',
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [-20, 20],
+              opacity: [0.2, 0.5, 0.2],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              repeatType: 'reverse',
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
 
-        {/* Simple Sign-On Button */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <a
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: isLoaded ? 1 : 0, scale: isLoaded ? 1 : 0.9 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+        style={{
+          textAlign: 'center',
+          padding: '40px',
+          maxWidth: '600px',
+          width: '100%'
+        }}
+      >
+        {/* AsymmFlow Logo Recreation */}
+        <motion.div
+          initial={{ rotate: -180, opacity: 0 }}
+          animate={{ rotate: 0, opacity: 1 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+          style={{ marginBottom: '40px' }}
+        >
+          <svg
+            width="180"
+            height="180"
+            viewBox="0 0 200 200"
+            style={{ margin: '0 auto' }}
+          >
+            {/* Pentagon container */}
+            <g transform="translate(100, 100)">
+              {/* Outer pentagon layers with transparency */}
+              {[80, 70, 60].map((size, i) => (
+                <polygon
+                  key={i}
+                  points={`0,-${size} ${size * 0.95},-${size * 0.31} ${size * 0.59},${size * 0.81} -${size * 0.59},${size * 0.81} -${size * 0.95},-${size * 0.31}`}
+                  fill="none"
+                  stroke="#4a9b9f"
+                  strokeWidth="1"
+                  opacity={0.3 - i * 0.08}
+                />
+              ))}
+              
+              {/* Golden spiral */}
+              <motion.path
+                d="M 0,0 Q -20,-20 -20,-40 T -40,-60 Q -30,-70 -10,-70 T 20,-50 Q 30,-30 20,-10 T 0,10 Q -10,15 -15,10 T -20,0 Q -15,-5 -10,-5 T 0,0"
+                fill="none"
+                stroke="url(#goldGradient)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 2, ease: 'easeInOut', delay: 0.5 }}
+              />
+              
+              {/* Gradient definition */}
+              <defs>
+                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#d4af37" />
+                  <stop offset="50%" stopColor="#ffd700" />
+                  <stop offset="100%" stopColor="#d4af37" />
+                </linearGradient>
+              </defs>
+            </g>
+          </svg>
+        </motion.div>
+
+        {/* AsymmFlow Text */}
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          style={{
+            fontSize: '48px',
+            fontWeight: '300',
+            color: '#e8f4f5',
+            marginBottom: '20px',
+            letterSpacing: '8px',
+            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+          }}
+        >
+          AsymmFlow
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          style={{
+            color: '#7a9ca0',
+            fontSize: '16px',
+            marginBottom: '50px',
+            letterSpacing: '2px',
+            textTransform: 'uppercase',
+            fontWeight: '400'
+          }}
+        >
+          Intelligent Business Platform
+        </motion.p>
+
+        {/* Enter Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.7 }}
+        >
+          <motion.a
             href="/dashboard"
             style={{
               display: 'inline-block',
-              padding: '20px 60px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              color: 'white',
-              backgroundColor: '#2E7D32',
-              borderRadius: '50px',
+              padding: '18px 50px',
+              fontSize: '15px',
+              fontWeight: '500',
+              color: '#0f1922',
+              background: 'linear-gradient(135deg, #4a9b9f 0%, #6ab5b9 100%)',
+              borderRadius: '30px',
               textDecoration: 'none',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 8px 20px rgba(46, 125, 50, 0.3)',
-              border: 'none',
-              cursor: 'pointer'
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              position: 'relative',
+              overflow: 'hidden',
+              transition: 'all 0.4s ease',
+              border: '1px solid rgba(74, 155, 159, 0.3)'
             }}
+            whileHover={{
+              scale: 1.05,
+              boxShadow: '0 10px 30px rgba(74, 155, 159, 0.4)'
+            }}
+            whileTap={{ scale: 0.98 }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-3px)';
-              e.currentTarget.style.boxShadow = '0 12px 25px rgba(46, 125, 50, 0.4)';
-              e.currentTarget.style.backgroundColor = '#388e3c';
+              e.currentTarget.style.background = 'linear-gradient(135deg, #6ab5b9 0%, #7ac5c9 100%)';
+              e.currentTarget.style.boxShadow = '0 15px 40px rgba(74, 155, 159, 0.5)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(46, 125, 50, 0.3)';
-              e.currentTarget.style.backgroundColor = '#2E7D32';
+              e.currentTarget.style.background = 'linear-gradient(135deg, #4a9b9f 0%, #6ab5b9 100%)';
+              e.currentTarget.style.boxShadow = 'none';
             }}
           >
-            🚀 Enter AsymmFlow ERP
-          </a>
-        </div>
+            Enter
+          </motion.a>
+        </motion.div>
 
-        <div style={{ 
-          backgroundColor: '#f8f9fa',
-          borderRadius: '10px',
-          padding: '20px',
-          marginTop: '30px'
-        }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '15px' }}>
-            🚀 System Highlights
-          </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
-            <div>
-              <p style={{ fontSize: '12px', color: '#6c757d', marginBottom: '5px' }}>RFQ Sources</p>
-              <p style={{ fontSize: '14px', fontWeight: '500' }}>Email, Website, Tender, Direct</p>
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: '#6c757d', marginBottom: '5px' }}>Document Tracking</p>
-              <p style={{ fontSize: '14px', fontWeight: '500' }}>6 Mandatory Documents</p>
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: '#6c757d', marginBottom: '5px' }}>Standard Markup</p>
-              <p style={{ fontSize: '14px', fontWeight: '500' }}>20% (Configurable)</p>
-            </div>
-            <div>
-              <p style={{ fontSize: '12px', color: '#6c757d', marginBottom: '5px' }}>Quote Revisions</p>
-              <p style={{ fontSize: '14px', fontWeight: '500' }}>Max 3 Per Quote</p>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ 
-          textAlign: 'center',
-          marginTop: '30px',
-          paddingTop: '20px',
-          borderTop: '1px solid #e9ecef'
-        }}>
-          <p style={{ color: '#6c757d', fontSize: '12px' }}>
-            © 2025 PH Trading WLL • Built for OEM Equipment Trading
-          </p>
-        </div>
-      </div>
+        {/* Subtle footer text */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1 }}
+          style={{
+            position: 'absolute',
+            bottom: '30px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            color: '#3a4a52',
+            fontSize: '12px',
+            letterSpacing: '1px'
+          }}
+        >
+          © 2025 PH Trading WLL
+        </motion.p>
+      </motion.div>
     </div>
   );
 }

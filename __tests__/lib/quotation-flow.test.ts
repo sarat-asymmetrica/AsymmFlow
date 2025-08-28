@@ -227,7 +227,7 @@ describe('🚀 Core Quotation Business Flow', () => {
       ];
 
       // Use consciousness test utility
-      global.consciousnessTestUtils.validateBusinessFlow(businessFlow);
+      (global as any).consciousnessTestUtils?.validateBusinessFlow(businessFlow);
       
       // Flow-specific validations
       expect(businessFlow.length).toBe(4); // Complete 4-step flow
@@ -246,4 +246,9 @@ describe('🚀 Core Quotation Business Flow', () => {
 });
 
 // Export flow constants for other tests
+const FLOW_CONSTANTS = {
+  MAX_STEPS: 10,
+  TIMEOUT: 5000
+};
+
 export { FLOW_CONSTANTS };

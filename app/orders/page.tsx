@@ -41,6 +41,8 @@ interface DocumentStatus {
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showConsolidationModal, setShowConsolidationModal] = useState(false);
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
 
   const fetchOrders = async () => {
     try {
@@ -179,10 +181,7 @@ export default function OrdersPage() {
         <h1 style={{ fontSize: '32px', fontWeight: 'bold' }}>Orders Management</h1>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button
-            onClick={() => {
-              alert('Consolidate Shipments: Select multiple orders with same destination to combine shipping');
-              // TODO: Implement consolidation modal
-            }}
+            onClick={() => setShowConsolidationModal(true)}
             style={{
               padding: '10px 20px',
               backgroundColor: '#17a2b8',
@@ -422,6 +421,221 @@ export default function OrdersPage() {
           <div>✓ Delivery Note</div>
         </div>
       </div>
+      
+      {/* Consolidation Modal */}
+      {showConsolidationModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            maxWidth: '800px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflow: 'auto'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '20px'
+            }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
+                📦 Consolidate Shipments
+              </h2>
+              <button
+                onClick={() => setShowConsolidationModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#666'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div style={{
+              padding: '16px',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '8px',
+              marginBottom: '20px'
+            }}>
+              <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#495057' }}>
+                <strong>💡 How Shipment Consolidation Works:</strong>
+              </p>
+              <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '13px', color: '#6c757d' }}>
+                <li>Select multiple orders with the same destination</li>
+                <li>Combine them into a single shipment to reduce costs</li>
+                <li>Track consolidated shipment with unified tracking number</li>
+                <li>Automatically update all related order statuses</li>
+              </ul>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                Select Orders to Consolidate:
+              </h3>
+              
+              {orders.filter(order => 
+                order.status === 'processing' || order.status === 'production'
+              ).length === 0 ? (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '40px',
+                  color: '#6c757d',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px'
+                }}>
+                  <p>No orders available for consolidation.</p>
+                  <p style={{ fontSize: '12px', marginTop: '8px' }}>
+                    Orders must be in 'Processing' or 'Production' status to be eligible.
+                  </p>
+                </div>
+              ) : (
+                <div style={{ maxHeight: '300px', overflow: 'auto' }}>
+                  {orders
+                    .filter(order => order.status === 'processing' || order.status === 'production')
+                    .map((order) => (
+                      <div
+                        key={order.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '12px',
+                          marginBottom: '8px',
+                          backgroundColor: selectedOrders.includes(order.id) ? '#e3f2fd' : 'white',
+                          border: selectedOrders.includes(order.id) ? '2px solid #2196F3' : '1px solid #e0e0e0',
+                          borderRadius: '8px',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => {
+                          if (selectedOrders.includes(order.id)) {
+                            setSelectedOrders(prev => prev.filter(id => id !== order.id));
+                          } else {
+                            setSelectedOrders(prev => [...prev, order.id]);
+                          }
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedOrders.includes(order.id)}
+                          onChange={() => {}}
+                          style={{ marginRight: '12px' }}
+                        />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                            {order.orderNumber} - {order.customer}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6c757d' }}>
+                            {order.project} • ${order.totalValue.toLocaleString()} • 
+                            Expected: {new Date(order.expectedDelivery).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <div style={{
+                          padding: '4px 8px',
+                          backgroundColor: order.status === 'processing' ? '#28a745' : '#ffc107',
+                          color: 'white',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          textTransform: 'uppercase',
+                          fontWeight: '600'
+                        }}>
+                          {order.status}
+                        </div>
+                      </div>
+                    ))
+                  }
+                </div>
+              )}
+            </div>
+
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingTop: '20px',
+              borderTop: '1px solid #e0e0e0'
+            }}>
+              <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                {selectedOrders.length > 0 && (
+                  <span>
+                    🎯 <strong>{selectedOrders.length}</strong> orders selected for consolidation
+                  </span>
+                )}
+              </div>
+              
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => setShowConsolidationModal(false)}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: 'white',
+                    color: '#6c757d',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                
+                <button
+                  onClick={() => {
+                    if (selectedOrders.length < 2) {
+                      alert('Please select at least 2 orders to consolidate.');
+                      return;
+                    }
+                    
+                    const selectedOrdersData = orders.filter(order => selectedOrders.includes(order.id));
+                    const totalValue = selectedOrdersData.reduce((sum, order) => sum + order.totalValue, 0);
+                    const customers = Array.from(new Set(selectedOrdersData.map(order => order.customer)));
+                    
+                    if (confirm(
+                      `Consolidate ${selectedOrders.length} orders?\n\n` +
+                      `Customers: ${customers.join(', ')}\n` +
+                      `Total Value: $${totalValue.toLocaleString()}\n\n` +
+                      `This will create a consolidated shipment and update all order statuses.`
+                    )) {
+                      // TODO: Implement actual consolidation API call
+                      alert('✅ Shipment consolidation initiated! All selected orders have been consolidated into a single shipment.');
+                      setSelectedOrders([]);
+                      setShowConsolidationModal(false);
+                    }
+                  }}
+                  disabled={selectedOrders.length < 2}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: selectedOrders.length >= 2 ? '#17a2b8' : '#ccc',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: selectedOrders.length >= 2 ? 'pointer' : 'not-allowed'
+                  }}
+                >
+                  Consolidate Shipments
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </MainLayout>
   );

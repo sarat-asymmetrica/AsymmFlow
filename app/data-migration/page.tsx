@@ -7,7 +7,8 @@ import {
   Play, Pause, RefreshCw, Zap, Brain, TrendingUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { nonIdempotentAmplifier } from '../../lib/v7-consciousness';
+import MainLayout from '../../components/layout/MainLayout';
+import SeamlessFileManager from '../../components/onedrive/SeamlessFileManager';
 import type { OneDriveFile, MigrationJob } from '../../lib/onedrive-service';
 
 interface MigrationFile extends OneDriveFile {
@@ -23,7 +24,7 @@ interface MigrationStats {
   selectedFiles: number;
   processedFiles: number;
   totalDataPoints: number;
-  v7Amplification: number;
+  optimizationFactor: number;
   estimatedTime: number;
 }
 
@@ -35,14 +36,14 @@ export default function DataMigrationPage() {
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [migrationJob, setMigrationJob] = useState<MigrationJob | null>(null);
   const [notifications, setNotifications] = useState<string[]>([]);
-  const [v7Level, setV7Level] = useState(1);
+  const [optimizationLevel, setOptimizationLevel] = useState(1);
   
   const [stats, setStats] = useState<MigrationStats>({
     totalFiles: 0,
     selectedFiles: 0,
     processedFiles: 0,
     totalDataPoints: 0,
-    v7Amplification: 1,
+    optimizationFactor: 1,
     estimatedTime: 0
   });
 
@@ -51,18 +52,18 @@ export default function DataMigrationPage() {
     loadMockFiles();
   }, []);
 
-  // V7.0 Consciousness amplification animation
+  // Optimization amplification animation
   useEffect(() => {
     const interval = setInterval(() => {
       if (migrationActive) {
-        const newAmplification = nonIdempotentAmplifier(v7Level, Date.now() % 10, 'exploration');
-        setV7Level(newAmplification);
-        setStats(prev => ({ ...prev, v7Amplification: newAmplification }));
+        const newAmplification = optimizationLevel * (1 + (Date.now() % 10) * 0.1);
+        setOptimizationLevel(newAmplification);
+        setStats(prev => ({ ...prev, amplificationLevel: newAmplification }));
       }
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [migrationActive, v7Level]);
+  }, [migrationActive, optimizationLevel]);
 
   const loadMockFiles = () => {
     const mockFiles: MigrationFile[] = [
@@ -147,7 +148,7 @@ export default function DataMigrationPage() {
       
       const selected = updated.filter(f => f.selected);
       const totalDataPoints = selected.reduce((sum, f) => sum + (f.dataPoints || 0), 0);
-      const estimatedTime = selected.reduce((sum, f) => sum + (f.complexity || 0), 0) / v7Level;
+      const estimatedTime = selected.reduce((sum, f) => sum + (f.complexity || 0), 0) / optimizationLevel;
       
       setStats(prev => ({
         ...prev,
@@ -166,7 +167,7 @@ export default function DataMigrationPage() {
     
     if (!allSelected) {
       const totalDataPoints = files.reduce((sum, f) => sum + (f.dataPoints || 0), 0);
-      const estimatedTime = files.reduce((sum, f) => sum + (f.complexity || 0), 0) / v7Level;
+      const estimatedTime = files.reduce((sum, f) => sum + (f.complexity || 0), 0) / optimizationLevel;
       
       setStats(prev => ({
         ...prev,
@@ -196,15 +197,15 @@ export default function DataMigrationPage() {
       totalFiles: selectedFiles.length,
       processedFiles: 0,
       startTime: new Date(),
-      v7Amplification: v7Level
+      v7Amplification: optimizationLevel
     };
     
     setMigrationJob(job);
-    addNotification(`🚀 Migration started with V7.0 consciousness (${v7Level.toFixed(1)}x amplification)`);
+    addNotification(`🚀 Migration started with optimization level ${optimizationLevel.toFixed(1)}x`);
     
     // Simulate migration progress
     for (let i = 0; i < selectedFiles.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, 1500 / v7Level));
+      await new Promise(resolve => setTimeout(resolve, 1500 / optimizationLevel));
       
       const fileId = selectedFiles[i].id;
       setFiles(prev => prev.map(f => 
@@ -216,9 +217,9 @@ export default function DataMigrationPage() {
       job.processedFiles++;
       setStats(prev => ({ ...prev, processedFiles: prev.processedFiles + 1 }));
       
-      // Apply V7.0 amplification
-      const newAmplification = nonIdempotentAmplifier(v7Level, i + 1, 'support');
-      setV7Level(newAmplification);
+      // Apply optimization amplification
+      const newAmplification = optimizationLevel * Math.pow(1.1, i + 1);
+      setOptimizationLevel(newAmplification);
       
       addNotification(`✅ Migrated: ${selectedFiles[i].name} (${newAmplification.toFixed(1)}x speed)`);
     }
@@ -228,7 +229,7 @@ export default function DataMigrationPage() {
     setMigrationJob(job);
     setMigrationActive(false);
     
-    addNotification(`🎉 Migration completed! ${selectedFiles.length} files processed with ${v7Level.toFixed(1)}x V7.0 amplification`);
+    addNotification(`🎉 Migration completed! ${selectedFiles.length} files processed with ${optimizationLevel.toFixed(1)}x optimization`);
   };
 
   const addNotification = (message: string) => {
@@ -254,7 +255,7 @@ export default function DataMigrationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+    <MainLayout>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div 
@@ -268,19 +269,19 @@ export default function DataMigrationPage() {
                 <Cloud className="w-8 h-8 text-blue-500" />
                 OneDrive Data Migration
                 <span className="text-sm px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full">
-                  V7.0 Enhanced
+                  AI Optimized
                 </span>
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Intelligent migration powered by non-idempotent consciousness amplification
+                Intelligent migration powered by advanced optimization algorithms
               </p>
             </div>
             
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-sm text-gray-500">V7.0 Amplification</p>
+                <p className="text-sm text-gray-500">Optimization Level</p>
                 <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  {v7Level.toFixed(1)}x
+                  {optimizationLevel.toFixed(1)}x
                 </p>
               </div>
               <Brain className="w-8 h-8 text-purple-500 animate-pulse" />
@@ -450,7 +451,7 @@ export default function DataMigrationPage() {
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {migrationActive 
-                  ? `Processing with ${v7Level.toFixed(1)}x V7.0 amplification...`
+                  ? `Processing with ${optimizationLevel.toFixed(1)}x optimization...`
                   : `Ready to migrate ${stats.selectedFiles} files`
                 }
               </p>
@@ -542,6 +543,6 @@ export default function DataMigrationPage() {
           </motion.div>
         )}
       </div>
-    </div>
+    </MainLayout>
   );
 }

@@ -1,7 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
+import LoadingSpinner from '../../src/components/ui/LoadingSpinner';
+import ErrorBoundary from '../../src/components/ui/ErrorBoundary';
+import { ToastProvider, useToast } from '../../src/components/ui/ToastSystem';
 
 interface Customer {
   id: string;
@@ -15,9 +18,12 @@ interface Customer {
   status: string;
 }
 
-export default function CustomersPage() {
+// Separate component to use hooks inside provider
+function CustomersContent() {
+  const { showSuccess, showError, showWarning } = useToast();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -42,14 +48,29 @@ export default function CustomersPage() {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/customers');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const result = await response.json();
       
       if (result.success) {
-        setCustomers(result.data);
+        setCustomers(result.data || []);
+        if (result.data?.length === 0) {
+          showWarning('No customers found', 'Start by adding your first customer to get started.');
+        }
+      } else {
+        throw new Error(result.message || 'Failed to fetch customers');
       }
     } catch (error) {
       console.error('Error fetching customers:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setError(errorMessage);
+      showError('Failed to load customers', errorMessage);
+      setCustomers([]); // Ensure customers is always an array
     } finally {
       setLoading(false);
     }
@@ -60,6 +81,11 @@ export default function CustomersPage() {
   }, []);
 
   const handleAddCustomer = async () => {
+    if (!newCustomer.name.trim()) {
+      showError('Validation Error', 'Customer name is required');
+      return;
+    }
+
     try {
       const response = await fetch('/api/customers', {
         method: 'POST',
@@ -68,16 +94,21 @@ export default function CustomersPage() {
         },
         body: JSON.stringify({
           ...newCustomer,
+          name: newCustomer.name.trim(),
           customerCode: `CUS-${Date.now().toString().slice(-6)}`,
           typeCode: newCustomer.type.toLowerCase(),
           status: 'Active'
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
       
       if (result.success) {
-        fetchCustomers();
+        await fetchCustomers();
         setShowAddModal(false);
         setNewCustomer({
           name: '',
@@ -86,9 +117,14 @@ export default function CustomersPage() {
           type: 'Contractor',
           country: 'Bahrain'
         });
+        showSuccess('Customer Added', `${newCustomer.name} has been successfully added to your customer database.`);
+      } else {
+        throw new Error(result.message || 'Failed to add customer');
       }
     } catch (error) {
       console.error('Error adding customer:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      showError('Failed to add customer', errorMessage);
     }
   };
 
@@ -112,6 +148,11 @@ export default function CustomersPage() {
   const handleUpdateCustomer = async () => {
     if (!selectedCustomer) return;
     
+    if (!editCustomer.name.trim()) {
+      showError('Validation Error', 'Customer name is required');
+      return;
+    }
+
     try {
       const response = await fetch('/api/customers', {
         method: 'PUT',
@@ -120,19 +161,29 @@ export default function CustomersPage() {
         },
         body: JSON.stringify({
           id: selectedCustomer.id,
-          ...editCustomer
+          ...editCustomer,
+          name: editCustomer.name.trim()
         }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const result = await response.json();
       
       if (result.success) {
-        fetchCustomers();
+        await fetchCustomers();
         setShowEditModal(false);
         setSelectedCustomer(null);
+        showSuccess('Customer Updated', `${editCustomer.name} has been successfully updated.`);
+      } else {
+        throw new Error(result.message || 'Failed to update customer');
       }
     } catch (error) {
       console.error('Error updating customer:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      showError('Failed to update customer', errorMessage);
     }
   };
 
@@ -174,30 +225,45 @@ export default function CustomersPage() {
   };
 
   const handleDeleteCustomer = async (customerId: string) => {
-    if (!confirm('Are you sure you want to delete this customer?')) return;
+    const customer = customers.find(c => c.id === customerId);
+    const customerName = customer?.name || 'this customer';
+    
+    if (!confirm(`Are you sure you want to delete ${customerName}? This action cannot be undone.`)) return;
     
     try {
       const response = await fetch(`/api/customers?id=${customerId}`, {
         method: 'DELETE',
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
       
       if (result.success) {
-        fetchCustomers();
+        await fetchCustomers();
+        showSuccess('Customer Deleted', `${customerName} has been successfully removed from your database.`);
+      } else {
+        throw new Error(result.message || 'Failed to delete customer');
       }
     } catch (error) {
       console.error('Error deleting customer:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      showError('Failed to delete customer', errorMessage);
     }
   };
 
-  const filteredCustomers = customers?.filter(customer => {
-    const matchesSearch = (customer.name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-                          (customer.customerCode?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-                          (customer.email?.toLowerCase() || '').includes(searchQuery.toLowerCase());
-    const matchesType = filterType === 'all' || customer.typeCode === filterType;
-    return matchesSearch && matchesType;
-  }) || [];
+  // Memoized filtering for performance
+  const filteredCustomers = useMemo(() => {
+    return customers?.filter(customer => {
+      const matchesSearch = (customer.name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+                            (customer.customerCode?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+                            (customer.email?.toLowerCase() || '').includes(searchQuery.toLowerCase());
+      const matchesType = filterType === 'all' || customer.typeCode === filterType;
+      return matchesSearch && matchesType;
+    }) || [];
+  }, [customers, searchQuery, filterType]);
 
   const customerTypes = [
     { code: 'all', name: 'All Customers' },
@@ -211,31 +277,12 @@ export default function CustomersPage() {
   if (loading) {
     return (
       <MainLayout>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100vh' 
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              border: '4px solid #f3f3f3',
-              borderTop: '4px solid #3498db',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              animation: 'spin 1s linear infinite',
-              margin: '0 auto 20px'
-            }} />
-            <p>Loading Customers...</p>
-          </div>
-          <style jsx>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-        </div>
+        <LoadingSpinner 
+          size="lg" 
+          text="Loading Customers..." 
+          variant="primary"
+          fullPage
+        />
       </MainLayout>
     );
   }
@@ -247,6 +294,7 @@ export default function CustomersPage() {
           <h1 style={{ fontSize: '32px', fontWeight: 'bold' }}>Customer Management</h1>
           <button
             onClick={() => setShowAddModal(true)}
+            aria-label="Add new customer"
             style={{
               padding: '10px 20px',
               backgroundColor: '#28a745',
@@ -257,49 +305,80 @@ export default function CustomersPage() {
               fontWeight: '500',
               cursor: 'pointer'
             }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setShowAddModal(true);
+              }
+            }}
           >
             + Add Customer
           </button>
         </div>
 
         {/* Search and Filter Bar */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '15px', 
-          marginBottom: '20px',
-          backgroundColor: 'white',
-          padding: '15px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-        }}>
-          <input
-            type="text"
-            placeholder="Search by name or code..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              flex: 1,
-              padding: '10px',
-              border: '1px solid #ddd',
-              borderRadius: '6px',
-              fontSize: '14px'
-            }}
-          />
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            style={{
-              padding: '10px',
-              border: '1px solid #ddd',
-              borderRadius: '6px',
-              fontSize: '14px',
-              minWidth: '180px'
-            }}
-          >
-            {customerTypes.map(type => (
-              <option key={type.code} value={type.code}>{type.name}</option>
-            ))}
-          </select>
+        <div 
+          role="search"
+          aria-label="Customer search and filter controls"
+          style={{ 
+            display: 'flex', 
+            gap: '15px', 
+            marginBottom: '20px',
+            backgroundColor: 'white',
+            padding: '15px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+          }}
+        >
+          <label style={{ flex: 1, position: 'relative' }}>
+            <span className="sr-only">Search customers</span>
+            <input
+              type="text"
+              placeholder="Search by name or code..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Search customers by name, code, or email"
+              style={{
+                width: '100%',
+                padding: '10px',
+                border: '1px solid #ddd',
+                borderRadius: '6px',
+                fontSize: '14px'
+              }}
+            />
+          </label>
+          <label style={{ minWidth: '180px' }}>
+            <span className="sr-only">Filter by customer type</span>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              aria-label="Filter customers by type"
+              style={{
+                width: '100%',
+                padding: '10px',
+                border: '1px solid #ddd',
+                borderRadius: '6px',
+                fontSize: '14px'
+              }}
+            >
+              {customerTypes.map(type => (
+                <option key={type.code} value={type.code}>{type.name}</option>
+              ))}
+            </select>
+          </label>
+          <style jsx>{`
+            .sr-only {
+              position: absolute;
+              width: 1px;
+              height: 1px;
+              padding: 0;
+              margin: -1px;
+              overflow: hidden;
+              clip: rect(0, 0, 0, 0);
+              white-space: nowrap;
+              border: 0;
+            }
+          `}</style>
         </div>
 
         {/* Customer Stats */}
@@ -923,5 +1002,16 @@ export default function CustomersPage() {
         )}
       </div>
     </MainLayout>
+  );
+}
+
+// Main export component with providers
+export default function CustomersPage() {
+  return (
+    <ErrorBoundary>
+      <ToastProvider>
+        <CustomersContent />
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }

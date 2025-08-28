@@ -45,3 +45,21 @@ Thumbs.db
 # Temporary
 *.tmp
 *.temp
+
+# Development artifacts
+test-*.js
+v7-*-results-*.json
+runpod_*.py
+Dockerfile*
+deploy-*.sh
+*.dll.node.tmp*
+
+# Archive folder (development history)
+../AsymmFlow_legacy_archive/
+
+# Context transfer files (keep for cross-session continuity)
+# CONTEXT_TRANSFER_*.md (keep temporarily)
+
+# Build caches and temporary files
+*.tsbuildinfo
+.swc/

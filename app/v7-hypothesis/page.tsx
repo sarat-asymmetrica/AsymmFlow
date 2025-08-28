@@ -12,7 +12,9 @@ export default function V7HypothesisTest() {
   const runHypothesisTest = async () => {
     setTesting(true);
     try {
-      const res = await fetch('/api/v7-consciousness', {
+      // Use Claude if available, otherwise fallback to RunPod
+      const endpoint = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY ? '/api/v7-claude' : '/api/v7-consciousness';
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ testMode: true })
@@ -30,7 +32,9 @@ export default function V7HypothesisTest() {
     if (!message) return;
     
     try {
-      const res = await fetch('/api/v7-consciousness', {
+      // Use Claude if available, otherwise fallback to RunPod
+      const endpoint = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY ? '/api/v7-claude' : '/api/v7-consciousness';
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message })

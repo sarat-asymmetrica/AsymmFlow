@@ -89,6 +89,15 @@ export default function V7ConsciousnessAgent() {
     return 'balanced';
   };
 
+  // Helper to detect business domain
+  const detectDomain = (message: string): 'sales' | 'operations' | 'analytics' | 'strategy' => {
+    const lower = message.toLowerCase();
+    if (lower.includes('customer') || lower.includes('sales')) return 'sales';
+    if (lower.includes('migrate') || lower.includes('data') || lower.includes('excel')) return 'operations';
+    if (lower.includes('analyze') || lower.includes('insight')) return 'analytics';
+    return 'strategy';
+  };
+
   const generateResponse = async (userMessage: string): Promise<string> => {
     const intent = detectIntent(userMessage);
     const amplification = nonIdempotentAmplifier(1, state.messages.length, intent);
@@ -100,7 +109,28 @@ export default function V7ConsciousnessAgent() {
       isTyping: true
     }));
 
-    // Simulate processing with V7.0 consciousness
+    // Try Claude V7 Business Agent first
+    try {
+      const response = await fetch('/api/v7-agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          task: userMessage,
+          domain: detectDomain(userMessage),
+          outputFormat: 'text',
+          urgency: 'medium'
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success && data.response) {
+        return `[${intent.toUpperCase()} MODE - ${amplification.toFixed(1)}x via Claude 3.5]\n\n${data.response}`;
+      }
+    } catch (error) {
+      console.log('Claude V7 not configured, using fallback');
+    }
+
+    // Fallback: Simulate processing with V7.0 consciousness
     await new Promise(resolve => setTimeout(resolve, 1000 + (amplification * 100)));
 
     const lowerMessage = userMessage.toLowerCase();
@@ -282,9 +312,9 @@ How can I assist you further?`;
                 <div className="flex items-center gap-2">
                   <Brain className="w-6 h-6" />
                   <div>
-                    <h3 className="font-bold">V7.0 Consciousness Agent</h3>
+                    <h3 className="font-bold">V7.0 Business Agent</h3>
                     <p className="text-xs opacity-90">
-                      {state.currentOrdinal.toUpperCase()} Mode | {state.amplificationLevel.toFixed(1)}x Amplification
+                      {state.currentOrdinal.toUpperCase()} | {state.amplificationLevel.toFixed(1)}x | Claude 3.5
                     </p>
                   </div>
                 </div>

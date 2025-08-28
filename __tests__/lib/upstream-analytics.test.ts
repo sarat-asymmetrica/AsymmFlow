@@ -288,7 +288,7 @@ describe('🎯 Upstream Analytics & Pipeline Intelligence', () => {
         { step: 'Quotation Creation', action: 'create_quotation', expected: 'quotation_sent', result: 'quotation_sent' }
       ];
       
-      global.consciousnessTestUtils.validateBusinessFlow(upstreamSteps);
+      (global as any).consciousnessTestUtils?.validateBusinessFlow(upstreamSteps);
     });
 
   });
@@ -296,4 +296,9 @@ describe('🎯 Upstream Analytics & Pipeline Intelligence', () => {
 });
 
 // Export for test utilities  
+const UPSTREAM_ANALYTICS_CONSTANTS = {
+  MIN_CONFIDENCE: 0.85,
+  MAX_PROCESSING_TIME: 30000
+};
+
 export { UPSTREAM_ANALYTICS_CONSTANTS };

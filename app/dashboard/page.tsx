@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import MainLayout from '../../components/layout/MainLayout';
 import PHCustomerAnalytics from '../../src/components/analytics/PH-Customer-Analytics';
+import DynamicWorkTimer from '../../components/productivity/DynamicWorkTimer';
+import { motion } from 'framer-motion';
 
 export default function DashboardRoute() {
   const [metrics, setMetrics] = useState({
@@ -337,6 +339,157 @@ export default function DashboardRoute() {
           </div>
           
           <PHCustomerAnalytics timeframe="6M" customers={[]} />
+        </div>
+
+        {/* Productivity Widget Section */}
+        <div style={{
+          marginTop: '30px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+          gap: '20px'
+        }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '8px',
+              padding: '20px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: '20px'
+              }}>
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '600',
+                  color: '#212529'
+                }}>
+                  Productivity Timer
+                </h3>
+                <button
+                  onClick={() => window.location.href = '/productivity'}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: '#f8f9fa',
+                    color: '#6c757d',
+                    border: '1px solid #dee2e6',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#007bff';
+                    e.currentTarget.style.color = 'white';
+                    e.currentTarget.style.borderColor = '#007bff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f8f9fa';
+                    e.currentTarget.style.color = '#6c757d';
+                    e.currentTarget.style.borderColor = '#dee2e6';
+                  }}
+                >
+                  Open Suite →
+                </button>
+              </div>
+              <DynamicWorkTimer />
+            </div>
+          </motion.div>
+
+          {/* Quick Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '8px',
+              padding: '20px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+              height: '100%'
+            }}>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: '600',
+                color: '#212529',
+                marginBottom: '20px'
+              }}>
+                Today's Productivity Insights
+              </h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%)',
+                  borderRadius: '8px',
+                  borderLeft: '4px solid #3b82f6'
+                }}>
+                  <div style={{ fontSize: '24px', fontWeight: '600', color: '#1e293b' }}>
+                    87%
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#64748b' }}>
+                    Focus Score - 23% above average
+                  </div>
+                </div>
+
+                <div style={{
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%)',
+                  borderRadius: '8px',
+                  borderLeft: '4px solid #10b981'
+                }}>
+                  <div style={{ fontSize: '24px', fontWeight: '600', color: '#1e293b' }}>
+                    4.2 hrs
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#64748b' }}>
+                    Deep Work Time - Peak performance
+                  </div>
+                </div>
+
+                <div style={{
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, #fefce8 0%, #f8fafc 100%)',
+                  borderRadius: '8px',
+                  borderLeft: '4px solid #f59e0b'
+                }}>
+                  <div style={{ fontSize: '24px', fontWeight: '600', color: '#1e293b' }}>
+                    3 Active
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#64748b' }}>
+                    Team members in sync - Join them
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => window.location.href = '/productivity'}
+                style={{
+                  width: '100%',
+                  marginTop: '20px',
+                  padding: '10px',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                View Full Productivity Suite
+              </button>
+            </div>
+          </motion.div>
         </div>
 
         {/* Pipeline Analytics Chart */}

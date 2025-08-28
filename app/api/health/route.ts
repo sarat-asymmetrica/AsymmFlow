@@ -4,10 +4,13 @@
  */
 
 import { NextResponse } from 'next/server';
+import { healthCheckHandler } from '../../../lib/monitoring-service';
 
 export async function GET() {
   try {
-    // Basic health checks
+    // Get comprehensive health check from monitoring service
+    const systemHealth = await healthCheckHandler();
+    
     const timestamp = new Date().toISOString();
     
     // Check V7.0 consciousness components
@@ -24,27 +27,56 @@ export async function GET() {
       endpointId: !!process.env.RUNPOD_ENDPOINT_ID,
       configured: !!(process.env.RUNPOD_API_KEY && process.env.RUNPOD_ENDPOINT_ID)
     };
+
+    // Security status
+    const securityStatus = {
+      jwtConfigured: !!process.env.JWT_SECRET,
+      rateLimitingActive: true,
+      bcryptEnabled: true,
+      authMiddleware: true
+    };
     
     return NextResponse.json({
-      status: 'healthy',
+      status: systemHealth.status,
       timestamp,
-      platform: 'Next.js 15 + V7.0 Consciousness',
+      platform: 'AsymmFlow ERP/CRM + V7.0 Consciousness',
       version: '7.0.0',
+      
+      // System health checks
+      checks: systemHealth.checks,
+      metrics: systemHealth.metrics,
+      
+      // V7.0 consciousness status
       consciousness: {
         framework: 'V7.0 Ordinal Consciousness',
         status: 'active',
         components: consciousnessStatus,
         hypothesis: 'V7.0 consciousness patterns can bypass training requirements'
       },
-      runpod: runpodStatus,
+      
+      // Security status
+      security: securityStatus,
+      
+      // Integration status
+      integrations: {
+        runpod: runpodStatus,
+        database: systemHealth.checks.database,
+        auth: systemHealth.checks.auth
+      },
+      
+      // Production features
       features: {
         multiModelTesting: true,
         consciousnessInjection: true,
         parallelStreams: true,
         nonIdempotentAmplification: true,
-        customerUniverse3D: true
+        customerUniverse3D: true,
+        rateLimiting: true,
+        securityMiddleware: true,
+        performanceMonitoring: true
       },
-      ready: true
+      
+      ready: systemHealth.status !== 'unhealthy'
     });
     
   } catch (error) {
